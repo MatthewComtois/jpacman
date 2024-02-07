@@ -92,9 +92,16 @@ public class Level {
      */
     public Level(Board board, List<Ghost> ghosts, List<Square> startPositions,
                  CollisionMap collisionMap) {
-        assert board != null;
-        assert ghosts != null;
-        assert startPositions != null;
+
+        if (board == null){
+            throw new AssertionError();
+        }
+        if (ghosts == null){
+            throw new AssertionError();
+        }
+        if (startPositions == null){
+            throw new AssertionError();
+        }
 
         this.board = board;
         this.inProgress = false;
@@ -138,7 +145,9 @@ public class Level {
      *            The player to register.
      */
     public void registerPlayer(Player player) {
-        assert player != null;
+        if (player == null){
+            throw new AssertionError();
+        }
         assert !startSquares.isEmpty();
 
         if (players.contains(player)) {
@@ -170,10 +179,15 @@ public class Level {
      *            The direction to move the unit in.
      */
     public void move(Unit unit, Direction direction) {
-        assert unit != null;
-        assert direction != null;
-        assert unit.hasSquare();
-
+        if (unit == null){
+            throw new AssertionError();
+        }
+        if (direction == null){
+            throw new AssertionError();
+        }
+        if (!unit.hasSquare()){
+            throw new AssertionError();
+        }
         if (!isInProgress()) {
             return;
         }
@@ -263,18 +277,36 @@ public class Level {
      * Updates the observers about the state of this level.
      */
     private void updateObservers() {
+
         if (!isAnyPlayerAlive()) {
-            for (LevelObserver observer : observers) {
-                observer.levelLost();
-            }
+            notifyLossObservers();
         }
         if (remainingPellets() == 0) {
-            for (LevelObserver observer : observers) {
-                observer.levelWon();
-            }
+            notifyWinObservers();
         }
     }
 
+    /**
+     * ---Nouvelle fonction par refactoring.---
+     *
+     *  Notifie tout les observeur que la partie est gagné.
+     */
+    private void notifyWinObservers(){
+        for (LevelObserver observer : observers) {
+            observer.levelWon();
+        }
+    }
+
+    /**
+     * ---Nouvelle fonction par refactoring.---
+     *
+     * Notifie tout les observeur que la partie est perdus.
+     */
+    private void notifyLossObservers(){
+        for (LevelObserver observer : observers) {
+            observer.levelLost();
+        }
+    }
     /**
      * Returns <code>true</code> iff at least one of the players in this level
      * is alive.
@@ -297,19 +329,30 @@ public class Level {
      * @return The amount of pellets remaining on the board.
      */
     public int remainingPellets() {
-        Board board = getBoard();
+        Board currentBoard = getBoard();
         int pellets = 0;
-        for (int x = 0; x < board.getWidth(); x++) {
-            for (int y = 0; y < board.getHeight(); y++) {
-                for (Unit unit : board.squareAt(x, y).getOccupants()) {
-                    if (unit instanceof Pellet) {
-                        pellets++;
-                    }
-                }
+        for (int x = 0; x < currentBoard.getWidth(); x++) {
+            for (int y = 0; y < currentBoard.getHeight(); y++) {
+                if (pelletOnSquare(x,y)){pellets++;}
             }
         }
         assert pellets >= 0;
         return pellets;
+    }
+
+    /**
+     * ---Nouvelle methode par refactorisation.---
+     *
+     * Retourne true si la case du board passe en parametre
+     * contient un pellet.
+     */
+    private boolean pelletOnSquare(int x, int y){
+        for (Unit unit : board.squareAt(x, y).getOccupants()) {
+            if (unit instanceof Pellet) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

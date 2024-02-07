@@ -35,6 +35,11 @@ public class Player extends Unit {
     private boolean alive;
 
     /**
+     * ---Ajouté par la refactorisation---
+     * Nombre de vies.
+     */
+    private int lives;
+    /**
      * {@link Unit} iff this player died by collision, <code>null</code> otherwise.
      */
     private Unit killer;
@@ -50,6 +55,8 @@ public class Player extends Unit {
     protected Player(Map<Direction, Sprite> spriteMap, AnimatedSprite deathAnimation) {
         this.score = 0;
         this.alive = true;
+        //Ajouté par la refactorisation
+        this.lives = 1;
         this.sprites = spriteMap;
         this.deathSprite = deathAnimation;
         deathSprite.setAnimating(false);
@@ -82,6 +89,7 @@ public class Player extends Unit {
         }
         this.alive = isAlive;
     }
+
 
     /**
      * Returns the unit that caused the death of Pac-Man.
@@ -127,5 +135,20 @@ public class Player extends Unit {
      */
     public void addPoints(int points) {
         score += points;
+    }
+
+    /**
+     * ---Fonction ajouté par la refactorisation.---
+     *
+     * Permet de réduire la nombre de vie d'un joueur. Si son nombre de vie
+     * est plus petit ou égale a zéro, le joueur est meure.
+     * @param killer
+     */
+    public void reduceLiveCount(Unit killer){
+        --lives;
+        if (lives <= 0){
+            setKiller(killer);
+            setAlive(false);
+        }
     }
 }

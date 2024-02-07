@@ -48,7 +48,7 @@ public class SinglePlayerGame extends Game {
 
     @Override
     public List<Player> getPlayers() {
-        return ImmutableList.of(player);
+        return List.of(player);
     }
 
     @Override
